@@ -92,7 +92,7 @@ function save_(d) {
   var ratings = (d.r || []).slice(0, CAPITALS.length);
   while (ratings.length < CAPITALS.length) ratings.push('');
   var row = [new Date(), clip(d.id, 40)]
-    .concat(ratings.map(function (x) { var n = Number(x); return n >= 1 && n <= 5 ? n : ''; }))
+    .concat(ratings.map(function (x) { var n = Number(x); return n >= 1 && n <= 5 ? n : (x === "Didn't attend" ? x : ''); }))
     .concat(FIELDS.map(function (f) { return clip(d[f[0]], 2000); }));
 
   var lock = LockService.getScriptLock();

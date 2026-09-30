@@ -127,7 +127,15 @@ input[type="text"]:focus, textarea:focus { outline: none; border-color: var(--ro
 .cap > div:first-child { min-width: 0; }
 .cap b { font-family: var(--font-display); font-weight: 600; font-size: 1.05rem; }
 .cap small { display: block; color: var(--ink-soft); font-size: .84rem; line-height: 1.4; }
-.hearts { display: flex; gap: 2px; }
+.rate { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+.hearts { display: flex; gap: 2px; transition: opacity .2s; }
+.na { appearance: none; cursor: pointer; font: 600 .78rem var(--font-body); color: var(--ink-soft);
+  background: transparent; border: 1.5px solid var(--line); border-radius: 99px; padding: 4px 12px; transition: all .2s; }
+.na:hover { border-color: var(--rose); color: var(--ink); }
+.na[aria-pressed="true"] { background: var(--rose-wash); border-color: var(--rose); color: var(--rose-deep); }
+.na:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+.cap.is-na .hearts { opacity: .3; }
+.cap.is-na b, .cap.is-na small { opacity: .6; }
 .hearts button { appearance: none; border: 0; background: none; cursor: pointer; padding: 4px; line-height: 0; border-radius: 8px; color: var(--line); }
 .hearts button svg { width: 24px; height: 24px; fill: currentColor; transition: transform .25s cubic-bezier(.3,1.6,.5,1), color .2s; }
 .hearts button.on { color: var(--rose); }
@@ -135,7 +143,7 @@ input[type="text"]:focus, textarea:focus { outline: none; border-color: var(--ro
 .hearts button.pop svg { animation: pop .4s cubic-bezier(.3,1.6,.5,1); }
 @keyframes pop { 40% { transform: scale(1.45); } }
 .scale-key { display: flex; justify-content: space-between; font-size: .8rem; color: var(--ink-soft); }
-@media (max-width: 520px) { .cap { grid-template-columns: 1fr; } }
+@media (max-width: 520px) { .cap { grid-template-columns: 1fr; } .rate { flex-direction: row; align-items: center; justify-content: space-between; flex-wrap: wrap; } }
 
 /* Choice chips */
 .choices { display: grid; gap: 8px; }
@@ -250,6 +258,7 @@ input[type="text"]:focus, textarea:focus { outline: none; border-color: var(--ro
     ["Dominion Capital", "How do I bring all my capital into purposeful Kingdom influence?"],
     ["Economic Capital", "How do I steward financial wealth and use it for life and influence?"]
   ];
+  var NA = "Didn't attend";
   var HEART = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7.5-4.6-10-9.3C.3 8.4 2.3 4.5 6 4.5c2.2 0 3.6 1.2 6 3.6 2.4-2.4 3.8-3.6 6-3.6 3.7 0 5.7 3.9 4 7.2C19.5 16.4 12 21 12 21z"/></svg>';
 
   var KEY = "gfj-eval-draft";
@@ -286,26 +295,30 @@ input[type="text"]:focus, textarea:focus { outline: none; border-color: var(--ro
             return '<li style="--i:' + i + '"><b>' + c[0] + '</b><span>' + c[1] + '</span></li>';
           }).join("") + '</ul>' +
           '<div class="facts"><span>⏱ About 10 minutes</span><span>🔒 Name optional</span><span>💕 Honest answers welcome</span></div>' +
-          '<blockquote>“For I know the plans I have for you,” declares the Lord.<cite>Jeremiah 29:11</cite></blockquote>' +
+          '<blockquote>“For in him we live and move and have our being.”<cite>Acts 17:28a</cite></blockquote>' +
           text("name", "Your name", { single: true, hint: "(optional)", ph: "e.g. Grace" });
       }, next: "Begin evaluation" },
     { render: function () {
         return '<p class="eyebrow">What you enjoyed most</p><h2>How much did you enjoy <em>each session?</em></h2>' +
           '<div class="scale-key"><span>1 heart · Not at all</span><span>5 hearts · Loved it</span></div>' +
+          '<p class="hint">Missed a session? Tap <b>Didn\'t attend</b> for that one.</p>' +
           '<div class="capitals">' + CAPITALS.map(function (c, i) {
-            var r = A().ratings[i] || 0;
-            return '<div class="cap"><div><b>' + c[0] + '</b><small>' + c[1] + '</small></div><div class="hearts" role="radiogroup" aria-label="' + c[0] + ' rating">' +
+            var na = A().ratings[i] === NA, r = na ? 0 : (A().ratings[i] || 0);
+            return '<div class="cap' + (na ? " is-na" : "") + '"><div><b>' + c[0] + '</b><small>' + c[1] + '</small></div><div class="rate"><div class="hearts" role="radiogroup" aria-label="' + c[0] + ' rating">' +
               [1, 2, 3, 4, 5].map(function (n) {
                 return '<button type="button" data-cap="' + i + '" data-n="' + n + '" class="' + (n <= r ? "on" : "") + '" role="radio" aria-checked="' + (n === r) + '" aria-label="' + n + ' of 5">' + HEART + '</button>';
-              }).join("") + '</div></div>';
+              }).join("") + '</div><button type="button" class="na" data-cap="' + i + '" aria-pressed="' + na + '">Didn\'t attend</button></div></div>';
           }).join("") + '</div>';
-      }, check: function () { return Object.keys(A().ratings).length === CAPITALS.length || "Please rate all seven sessions."; } },
+      }, check: function () { return Object.keys(A().ratings).length === CAPITALS.length || "Please rate each session, or tap Didn't attend."; } },
     { render: function () {
         return '<p class="eyebrow">What you enjoyed most</p><h2>Which session did you <em>enjoy the most?</em> <span class="req">*</span></h2>' +
-          choices("favourite", CAPITALS) +
+          choices("favourite", attended()) +
           text("why", "Why was that session your favourite?") +
           text("moment", "Was there a moment, activity or conversation that really stood out to you?");
-      }, check: function () { return !!A().favourite || "Please choose your favourite session."; } },
+      }, check: function () {
+        var ok = attended().some(function (c) { return c[0] === A().favourite; });
+        return ok || "Please choose your favourite session.";
+      } },
     { render: function () {
         return '<p class="eyebrow">What you took away</p><h2>What are you <em>carrying home?</em></h2>' +
           text("lesson", "What is the biggest lesson or truth you are taking away?", { req: true }) +
@@ -333,8 +346,8 @@ input[type="text"]:focus, textarea:focus { outline: none; border-color: var(--ro
         if (SHEET_URL) {
           return '<svg class="done-mark" viewBox="0 0 84 84" aria-hidden="true"><circle cx="42" cy="42" r="42"/><path d="M26 43l11 11 21-23"/></svg>' +
             '<h2>Thank you, <em>' + esc(A().name || "sister") + '!</em></h2>' +
-            '<p class="lede">Your response has been submitted. May God continue the good work He began in you.</p>' +
-            '<blockquote>“He who began a good work in you will carry it on to completion.”<cite>Philippians 1:6</cite></blockquote>' +
+            '<p class="lede">Your response has been submitted. May God keep working in you for His good purpose.</p>' +
+            '<blockquote>“For it is God who works in you to will and to act in order to fulfil his good purpose.”<cite>Philippians 2:13</cite></blockquote>' +
             '<button type="button" class="btn ghost" id="restart">Start a new response</button>';
         }
         var send = SHEET_URL
@@ -352,12 +365,16 @@ input[type="text"]:focus, textarea:focus { outline: none; border-color: var(--ro
       } }
   ];
 
+  function attended() {
+    var list = CAPITALS.filter(function (c, i) { return A().ratings[i] !== NA; });
+    return list.length ? list : CAPITALS;
+  }
   function summary() {
     var a = A(), L = [];
     L.push("🌸 GIRLS FOLLOWING JESUS · EVALUATION");
     if (a.name) L.push("Name: " + a.name);
     L.push("", "SESSION RATINGS (out of 5)");
-    CAPITALS.forEach(function (c, i) { L.push("• " + c[0] + ": " + (a.ratings[i] || "-") + " " + "♥".repeat(a.ratings[i] || 0)); });
+    CAPITALS.forEach(function (c, i) { var v = a.ratings[i]; L.push("• " + c[0] + ": " + (v === NA ? NA : (v || "-") + " " + "♥".repeat(v || 0))); });
     function q(label, v) { if (v && String(v).trim()) L.push("", label, String(v).trim()); }
     q("Favourite session:", a.favourite); q("Why:", a.why); q("Standout moment:", a.moment);
     q("Biggest lesson:", a.lesson); q("Capital to grow in:", a.grow); q("How it changed me:", a.changed);
@@ -420,11 +437,24 @@ input[type="text"]:focus, textarea:focus { outline: none; border-color: var(--ro
       b.addEventListener("click", function () {
         var i = b.dataset.cap, n = +b.dataset.n;
         A().ratings[i] = n; save();
+        var row = b.closest(".cap"); row.classList.remove("is-na");
+        row.querySelector(".na").setAttribute("aria-pressed", "false");
         b.parentNode.querySelectorAll("button").forEach(function (x) {
           var on = +x.dataset.n <= n;
           x.classList.toggle("on", on); x.setAttribute("aria-checked", +x.dataset.n === n);
           x.classList.remove("pop"); if (on) { void x.offsetWidth; x.classList.add("pop"); }
         });
+      });
+    });
+    app.querySelectorAll(".na").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var i = b.dataset.cap, row = b.closest(".cap"), on = b.getAttribute("aria-pressed") !== "true";
+        if (on) A().ratings[i] = NA; else delete A().ratings[i];
+        if (on && A().favourite === CAPITALS[i][0]) delete A().favourite;
+        save();
+        b.setAttribute("aria-pressed", on);
+        row.classList.toggle("is-na", on);
+        row.querySelectorAll(".hearts button").forEach(function (x) { x.classList.remove("on"); x.setAttribute("aria-checked", "false"); });
       });
     });
     app.querySelectorAll("[data-choice]").forEach(function (g) {
