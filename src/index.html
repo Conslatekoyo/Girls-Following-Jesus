@@ -1,0 +1,509 @@
+<title>Girls Following Jesus Evaluation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400;1,9..144,600&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: one question-card at a time, centred column, petals drifting behind, progress ribbon on top */
+:root {
+  --bg: #fbf3f5;
+  --bg-2: #f6e3e9;
+  --card: #ffffff;
+  --ink: #3a1d33;
+  --ink-soft: #7a5a70;
+  --line: #ecd3dc;
+  --rose: #c8497a;
+  --rose-deep: #9e2f5d;
+  --rose-wash: #fbe4ec;
+  --gold: #c9973f;
+  --petal-a: #f2a7c0;
+  --petal-b: #f7cfdc;
+  --shadow: 0 18px 50px -24px rgba(122, 38, 80, .35);
+  --scrim: rgba(58, 29, 51, .45);
+  --font-display: "Fraunces", "Iowan Old Style", Georgia, serif;
+  --font-body: "Figtree", "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #1d1219; --bg-2: #2a1824; --card: #2a1b25; --ink: #f8e9ef; --ink-soft: #cfb0c0;
+    --line: #47303e; --rose: #ef7fa8; --rose-deep: #f59dbd; --rose-wash: #3b2130; --gold: #e2b764;
+    --petal-a: #8a3f5f; --petal-b: #5d2c43; --shadow: 0 18px 50px -24px rgba(0,0,0,.7); --scrim: rgba(0,0,0,.6); color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #1d1219; --bg-2: #2a1824; --card: #2a1b25; --ink: #f8e9ef; --ink-soft: #cfb0c0;
+  --line: #47303e; --rose: #ef7fa8; --rose-deep: #f59dbd; --rose-wash: #3b2130; --gold: #e2b764;
+  --petal-a: #8a3f5f; --petal-b: #5d2c43; --shadow: 0 18px 50px -24px rgba(0,0,0,.7); --scrim: rgba(0,0,0,.6); color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { min-height: 100%; }
+body {
+  margin: 0;
+  background: radial-gradient(120% 80% at 50% 0%, var(--bg-2), var(--bg) 60%);
+  background-color: var(--bg);
+  color: var(--ink);
+  font: 16px/1.6 var(--font-body);
+  padding-inline: 16px;
+  padding-block: 0 48px;
+}
+#petals { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+
+.top {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 2;
+  max-width: 640px; margin: 0 auto; padding-block: 18px 10px;
+  display: flex; align-items: center; gap: 14px;
+  background: linear-gradient(var(--bg) 70%, transparent);
+}
+.brand { font: italic 600 1.05rem/1 var(--font-display); color: var(--rose-deep); white-space: nowrap; }
+.progress { flex: 1; height: 6px; border-radius: 99px; background: var(--line); overflow: hidden; }
+.progress i { display: block; height: 100%; width: 0; border-radius: inherit;
+  background: linear-gradient(90deg, var(--rose), var(--gold)); transition: width .6s cubic-bezier(.2,.8,.2,1); }
+.step-count { font-size: .8rem; color: var(--ink-soft); font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+main { position: relative; z-index: 1; max-width: 640px; margin: 8px auto 0; }
+.screen {
+  background: var(--card); border: 1px solid var(--line); border-radius: 22px;
+  box-shadow: var(--shadow); padding: 32px clamp(20px, 5vw, 40px);
+  display: grid; gap: 22px;
+}
+.screen.enter { animation: rise .55s cubic-bezier(.2,.8,.2,1) both; }
+.screen.enter-back { animation: fall .55s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes rise { from { opacity: .5; transform: translateY(26px) scale(.985); } to { opacity: 1; transform: none; } }
+@keyframes fall { from { opacity: .5; transform: translateY(-26px) scale(.985); } to { opacity: 1; transform: none; } }
+.screen > * { animation: fadeUp .6s cubic-bezier(.2,.8,.2,1) both; }
+.screen > *:nth-child(2) { animation-delay: .06s; } .screen > *:nth-child(3) { animation-delay: .12s; }
+.screen > *:nth-child(4) { animation-delay: .18s; } .screen > *:nth-child(5) { animation-delay: .24s; }
+.screen > *:nth-child(n+6) { animation-delay: .3s; }
+@keyframes fadeUp { from { opacity: .4; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+.eyebrow { font-size: .75rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--gold); margin: 0; }
+h1, h2 { font-family: var(--font-display); font-weight: 600; margin: 0; text-wrap: balance; line-height: 1.15; }
+h1 { font-size: clamp(2rem, 7vw, 2.8rem); }
+h1 em, h2 em { color: var(--rose); font-style: italic; }
+h2 { font-size: clamp(1.5rem, 5vw, 1.9rem); }
+.lede { margin: 0; color: var(--ink-soft); max-width: 60ch; }
+blockquote { margin: 0; padding: 14px 18px; border-radius: 14px; background: var(--rose-wash);
+  font: italic 400 1.05rem/1.5 var(--font-display); color: var(--ink); }
+blockquote cite { display: block; margin-top: 6px; font: 600 .8rem var(--font-body); font-style: normal; color: var(--rose-deep); }
+
+.capchips { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.capchips li { flex: 1 1 180px; padding: 10px 12px; border-radius: 14px; background: var(--rose-wash); display: grid; gap: 2px; min-width: 0;
+  animation: fadeUp .6s cubic-bezier(.2,.8,.2,1) both; animation-delay: calc(.25s + var(--i) * .07s); }
+.capchips b { font-family: var(--font-display); font-weight: 600; color: var(--rose-deep); }
+.capchips span { font-size: .82rem; color: var(--ink-soft); line-height: 1.35; }
+.facts { display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: .88rem; color: var(--ink-soft); font-weight: 500; }
+.field { display: grid; gap: 8px; }
+label, .qlabel { font-weight: 600; }
+.req { color: var(--rose); }
+.hint { font-size: .85rem; color: var(--ink-soft); font-weight: 400; }
+input[type="text"], textarea {
+  width: 100%; font: inherit; color: var(--ink); background: var(--bg);
+  border: 1.5px solid var(--line); border-radius: 14px; padding: 12px 14px;
+  transition: border-color .2s, box-shadow .2s;
+}
+textarea { min-height: 96px; resize: vertical; }
+input[type="text"]:focus, textarea:focus { outline: none; border-color: var(--rose); box-shadow: 0 0 0 4px var(--rose-wash); }
+
+/* Capital rating rows */
+.capitals { display: grid; gap: 10px; }
+.cap { display: grid; grid-template-columns: 1fr auto; gap: 6px 14px; align-items: center;
+  padding: 12px 14px; border: 1px solid var(--line); border-radius: 14px; background: var(--bg); }
+.cap > div:first-child { min-width: 0; }
+.cap b { font-family: var(--font-display); font-weight: 600; font-size: 1.05rem; }
+.cap small { display: block; color: var(--ink-soft); font-size: .84rem; line-height: 1.4; }
+.hearts { display: flex; gap: 2px; }
+.hearts button { appearance: none; border: 0; background: none; cursor: pointer; padding: 4px; line-height: 0; border-radius: 8px; color: var(--line); }
+.hearts button svg { width: 24px; height: 24px; fill: currentColor; transition: transform .25s cubic-bezier(.3,1.6,.5,1), color .2s; }
+.hearts button.on { color: var(--rose); }
+.hearts button:hover svg { transform: scale(1.15); }
+.hearts button.pop svg { animation: pop .4s cubic-bezier(.3,1.6,.5,1); }
+@keyframes pop { 40% { transform: scale(1.45); } }
+.scale-key { display: flex; justify-content: space-between; font-size: .8rem; color: var(--ink-soft); }
+@media (max-width: 520px) { .cap { grid-template-columns: 1fr; } }
+
+/* Choice chips */
+.choices { display: grid; gap: 8px; }
+.choices.row { grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); }
+.choice { appearance: none; text-align: left; font: inherit; color: var(--ink); cursor: pointer;
+  border: 1.5px solid var(--line); background: var(--bg); border-radius: 14px; padding: 12px 14px;
+  display: flex; gap: 10px; align-items: center; transition: border-color .2s, background .2s, transform .2s; }
+.choice:hover { transform: translateY(-1px); border-color: var(--rose); }
+.choice .dot { flex: none; width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--line); transition: all .25s; }
+.choice[aria-pressed="true"] { border-color: var(--rose); background: var(--rose-wash); }
+.choice[aria-pressed="true"] .dot { border-color: var(--rose); background: var(--rose); box-shadow: inset 0 0 0 3px var(--card); }
+.choice span.t { min-width: 0; }
+.choice small { display: block; color: var(--ink-soft); font-size: .82rem; }
+
+.csst { display: grid; gap: 14px; }
+.csst .field label { display: flex; gap: 8px; align-items: center; }
+.tag { font-size: .72rem; font-weight: 700; letter-spacing: .1em; padding: 3px 9px; border-radius: 99px; color: #fff; }
+.tag.c { background: #3f8f63; } .tag.s { background: #c44545; } .tag.st { background: #c9973f; }
+
+.nav { display: flex; gap: 10px; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+.btn { appearance: none; border: 0; cursor: pointer; font: 600 1rem var(--font-body); border-radius: 99px; padding: 13px 26px;
+  transition: transform .2s, box-shadow .2s, background .2s; }
+.btn.primary { background: var(--rose); color: #fff; box-shadow: 0 10px 24px -12px var(--rose); }
+.btn.primary:hover { transform: translateY(-2px); background: var(--rose-deep); }
+.btn.ghost { background: transparent; color: var(--ink-soft); padding-inline: 10px; }
+.btn.ghost:hover { color: var(--ink); }
+.btn:focus-visible, .choice:focus-visible, .hearts button:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+.error { color: var(--rose-deep); font-size: .9rem; margin: 0; min-height: 1.2em; }
+.shake { animation: shake .4s; }
+@keyframes shake { 25% { transform: translateX(-6px); } 50% { transform: translateX(6px); } 75% { transform: translateX(-3px); } }
+
+.done-mark { width: 84px; height: 84px; margin: 0 auto; }
+.done-mark circle { fill: var(--rose-wash); }
+.done-mark path { fill: none; stroke: var(--rose); stroke-width: 5; stroke-linecap: round; stroke-linejoin: round;
+  stroke-dasharray: 60; stroke-dashoffset: 60; animation: draw .8s .3s ease forwards; }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+.center { text-align: center; justify-items: center; }
+.send { display: grid; gap: 10px; width: 100%; }
+.btn.wa { background: #1f9e57; color: #fff; text-decoration: none; text-align: center; }
+.btn.wa:hover { transform: translateY(-2px); }
+.btn.soft { background: var(--rose-wash); color: var(--rose-deep); }
+.summary { width: 100%; text-align: left; max-height: 220px; overflow: auto; white-space: pre-wrap; font-size: .85rem;
+  background: var(--bg); border: 1px solid var(--line); border-radius: 14px; padding: 14px; margin: 0; }
+.modal { position: fixed; inset: 0; z-index: 5; display: grid; place-items: center; padding: 16px;
+  background: var(--scrim); animation: fadeIn .3s ease both; }
+.modal[hidden] { display: none !important; }
+.modal-card { background: var(--card); color: var(--ink); border-radius: 24px; box-shadow: var(--shadow);
+  max-width: 400px; width: 100%; padding: 34px 28px 28px; display: grid; gap: 14px; justify-items: center; text-align: center;
+  animation: popIn .5s cubic-bezier(.3,1.4,.5,1) both; }
+.modal-card h2 { font-size: 1.7rem; }
+.modal-card p { margin: 0; color: var(--ink-soft); }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes popIn { from { opacity: .3; transform: translateY(20px) scale(.92); } to { opacity: 1; transform: none; } }
+.foot { text-align: center; color: var(--ink-soft); font-size: .8rem; margin-top: 18px; position: relative; z-index: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  .done-mark path { stroke-dashoffset: 0; }
+}
+</style>
+
+<canvas id="petals" aria-hidden="true"></canvas>
+
+<header class="top">
+  <span class="brand">Girls Following Jesus</span>
+  <div class="progress" role="progressbar" aria-label="Progress" aria-valuemin="0" aria-valuemax="100"><i id="bar"></i></div>
+  <span class="step-count" id="count"></span>
+</header>
+
+<main id="app" aria-live="polite"></main>
+<div class="modal" id="thanks" role="dialog" aria-modal="true" aria-labelledby="thanks-title" hidden>
+  <div class="modal-card">
+    <svg class="done-mark" viewBox="0 0 84 84" aria-hidden="true"><circle cx="42" cy="42" r="42"/><path d="M26 43l11 11 21-23"/></svg>
+    <h2 id="thanks-title">Thank you for <em>your response!</em></h2>
+    <p>Your answers have been sent to the Girls Following Jesus team. We're so grateful you journeyed with us. 💕</p>
+    <p class="hint" id="tab-note">A confirmation tab may open. You can close it.</p>
+    <button type="button" class="btn primary" id="thanks-close">Close</button>
+  </div>
+</div>
+<p class="foot">Programme Evaluation · Your answers go only to the Girls Following Jesus team.</p>
+
+<script>
+(function () {
+  // Set this to an admin's WhatsApp number (country code, digits only, e.g. "254712345678")
+  // so answers go straight to them. Left empty, the viewer picks the chat.
+  var ADMIN_WHATSAPP = "";
+  // Web app URL from the Google Sheet's Apps Script deployment (ends in /exec).
+  // When set, "Submit my answers" adds a row to the sheet.
+  // When this page is served by the Apps Script web app itself, answers save directly (no extra tab).
+  var GAS = window.google && google.script && google.script.run;
+  // "web" = hosted as a normal website: answers post to the sheet in the background.
+  var MODE = "artifact";
+  var DIRECT = !!GAS || MODE === "web";
+  var SHEET_URL = "https://script.google.com/macros/s/AKfycbyNilP1PV423W5cNyDci1Sj1-iJ0vE11yc9QAoRVLferA_32GrPPH3rP2SG4SaaXyMs/exec";
+
+  var CAPITALS = [
+    ["Core Capital", "Who is at the centre of my life?"],
+    ["Capital Compass", "What directs my life and decisions?"],
+    ["Capital Toolkit", "What has God placed in my hands?"],
+    ["Brand Capital", "What do I represent and communicate?"],
+    ["Social Capital", "Who has God connected me to?"],
+    ["Dominion Capital", "How do I bring all my capital into purposeful Kingdom influence?"],
+    ["Economic Capital", "How do I steward financial wealth and use it for life and influence?"]
+  ];
+  var HEART = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7.5-4.6-10-9.3C.3 8.4 2.3 4.5 6 4.5c2.2 0 3.6 1.2 6 3.6 2.4-2.4 3.8-3.6 6-3.6 3.7 0 5.7 3.9 4 7.2C19.5 16.4 12 21 12 21z"/></svg>';
+
+  var KEY = "gfj-eval-draft";
+  var hot = window.claude && window.claude.hot;
+  var state = (hot && hot.data && hot.data.state) || load() || { step: 0, a: { ratings: {} } };
+  if (hot && hot.snapshot) hot.snapshot(function () { return { state: state }; });
+
+  function load() { try { return JSON.parse(localStorage.getItem(KEY)); } catch (e) { return null; } }
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+  var A = function () { return state.a; };
+
+  function text(id, label, opts) {
+    opts = opts || {};
+    var v = esc(A()[id]);
+    var tag = opts.single ? '<input type="text" id="' + id + '" maxlength="80" value="' + v + '" placeholder="' + (opts.ph || "") + '">'
+      : '<textarea id="' + id + '" maxlength="800" placeholder="' + (opts.ph || "Share your thoughts…") + '">' + v + '</textarea>';
+    return '<div class="field"><label for="' + id + '">' + label + (opts.req ? ' <span class="req">*</span>' : "") +
+      (opts.hint ? ' <span class="hint">' + opts.hint + '</span>' : "") + '</label>' + tag + '</div>';
+  }
+  function choices(id, list, cls) {
+    return '<div class="choices ' + (cls || "") + '" data-choice="' + id + '">' + list.map(function (c) {
+      var val = Array.isArray(c) ? c[0] : c, sub = Array.isArray(c) ? '<small>' + c[1] + '</small>' : "";
+      return '<button type="button" class="choice" data-val="' + esc(val) + '" aria-pressed="' + (A()[id] === val) + '"><span class="dot"></span><span class="t">' + esc(val) + sub + '</span></button>';
+    }).join("") + '</div>';
+  }
+
+  var SCREENS = [
+    { render: function () {
+        return '<p class="eyebrow">Programme Evaluation</p>' +
+          '<h1>Thank you for journeying <em>with us</em>, sister.</h1>' +
+          '<p class="lede">Over these sessions we explored seven kinds of capital God has entrusted to you. Now we\'d love to hear what blessed you, what you\'re carrying home, and how we can grow.</p>' +
+          '<ul class="capchips" aria-label="The seven capitals">' + CAPITALS.map(function (c, i) {
+            return '<li style="--i:' + i + '"><b>' + c[0] + '</b><span>' + c[1] + '</span></li>';
+          }).join("") + '</ul>' +
+          '<div class="facts"><span>⏱ About 10 minutes</span><span>🔒 Name optional</span><span>💕 Honest answers welcome</span></div>' +
+          '<blockquote>“For I know the plans I have for you,” declares the Lord.<cite>Jeremiah 29:11</cite></blockquote>' +
+          text("name", "Your name", { single: true, hint: "(optional)", ph: "e.g. Grace" });
+      }, next: "Begin evaluation" },
+    { render: function () {
+        return '<p class="eyebrow">What you enjoyed most</p><h2>How much did you enjoy <em>each session?</em></h2>' +
+          '<div class="scale-key"><span>1 heart · Not at all</span><span>5 hearts · Loved it</span></div>' +
+          '<div class="capitals">' + CAPITALS.map(function (c, i) {
+            var r = A().ratings[i] || 0;
+            return '<div class="cap"><div><b>' + c[0] + '</b><small>' + c[1] + '</small></div><div class="hearts" role="radiogroup" aria-label="' + c[0] + ' rating">' +
+              [1, 2, 3, 4, 5].map(function (n) {
+                return '<button type="button" data-cap="' + i + '" data-n="' + n + '" class="' + (n <= r ? "on" : "") + '" role="radio" aria-checked="' + (n === r) + '" aria-label="' + n + ' of 5">' + HEART + '</button>';
+              }).join("") + '</div></div>';
+          }).join("") + '</div>';
+      }, check: function () { return Object.keys(A().ratings).length === CAPITALS.length || "Please rate all seven sessions."; } },
+    { render: function () {
+        return '<p class="eyebrow">What you enjoyed most</p><h2>Which session did you <em>enjoy the most?</em> <span class="req">*</span></h2>' +
+          choices("favourite", CAPITALS) +
+          text("why", "Why was that session your favourite?") +
+          text("moment", "Was there a moment, activity or conversation that really stood out to you?");
+      }, check: function () { return !!A().favourite || "Please choose your favourite session."; } },
+    { render: function () {
+        return '<p class="eyebrow">What you took away</p><h2>What are you <em>carrying home?</em></h2>' +
+          text("lesson", "What is the biggest lesson or truth you are taking away?", { req: true }) +
+          text("grow", "Which capital do you most want to grow in, and what is one step you will take?") +
+          text("changed", "How has this programme changed the way you see yourself, God or your purpose?");
+      }, check: function () { return !!(A().lesson || "").trim() || "Please share your biggest lesson."; } },
+    { render: function () {
+        return '<p class="eyebrow">Continue · Stop · Start</p><h2>Help us <em>grow</em> the programme.</h2><div class="csst">' +
+          text("continue", '<span class="tag c">CONTINUE</span> What should we keep doing?') +
+          text("stop", '<span class="tag s">STOP</span> What should we stop or do less of?') +
+          text("start", '<span class="tag st">START</span> What should we start doing or add?') + '</div>';
+      } },
+    { render: function () {
+        return '<p class="eyebrow">A comment on SEAs</p><h2>Your thoughts on <em>the SEAs</em></h2>' +
+          text("seas", "Please share your thoughts on the SEAs.");
+      } },
+    { render: function () {
+        return '<p class="eyebrow">Overall</p><h2>And finally, <em>overall…</em></h2>' +
+          '<div class="field"><span class="qlabel">How would you rate the programme? <span class="req">*</span></span>' + choices("overall", ["Excellent", "Very good", "Good", "Fair", "Poor"], "row") + '</div>' +
+          '<div class="field"><span class="qlabel">Would you recommend Girls Following Jesus to a friend? <span class="req">*</span></span>' + choices("recommend", ["Yes, definitely", "Maybe", "No"], "row") + '</div>' +
+          text("other", "Any other thoughts, encouragement or prayer requests?");
+      }, check: function () { return (A().overall && A().recommend) ? true : "Please answer both questions marked *."; }, next: "Finish", submit: true },
+    { done: true, render: function () {
+        var s = summary();
+        if (SHEET_URL) {
+          return '<svg class="done-mark" viewBox="0 0 84 84" aria-hidden="true"><circle cx="42" cy="42" r="42"/><path d="M26 43l11 11 21-23"/></svg>' +
+            '<h2>Thank you, <em>' + esc(A().name || "sister") + '!</em></h2>' +
+            '<p class="lede">Your response has been submitted. May God continue the good work He began in you.</p>' +
+            '<blockquote>“He who began a good work in you will carry it on to completion.”<cite>Philippians 1:6</cite></blockquote>' +
+            '<button type="button" class="btn ghost" id="restart">Start a new response</button>';
+        }
+        var send = SHEET_URL
+          ? '<a class="btn primary" id="submit" href="' + esc(sheetLink()) + '" target="_blank" rel="noopener">' + (state.submitted ? "Submitted ✓ Send again" : "Submit my answers") + '</a>' +
+            '<p class="hint" id="submitted-note"' + (state.submitted ? "" : " hidden") + '>Your answers were sent. A thank-you page opened in a new tab. You can close it.</p>' +
+            '<a class="btn soft" id="wa" href="' + waLink(s) + '" target="_blank" rel="noopener">Also send on WhatsApp</a>'
+          : '<a class="btn wa" id="wa" href="' + waLink(s) + '" target="_blank" rel="noopener">Send my answers on WhatsApp</a>' +
+            '<button type="button" class="btn soft" id="copy">Copy my answers</button>';
+        return '<svg class="done-mark" viewBox="0 0 84 84" aria-hidden="true"><circle cx="42" cy="42" r="42"/><path d="M26 43l11 11 21-23"/></svg>' +
+          '<h2>Thank you, <em>' + esc(A().name || "sister") + '!</em></h2>' +
+          '<p class="lede">' + (SHEET_URL ? "One last step: tap Submit to send your answers to the Girls Following Jesus team." : "One last step: send your answers to the Girls Following Jesus team.") + '</p>' +
+          '<div class="send">' + send + '</div>' +
+          '<pre class="summary" id="sum">' + esc(s) + '</pre>' +
+          '<button type="button" class="btn ghost" id="edit">← Change an answer</button>';
+      } }
+  ];
+
+  function summary() {
+    var a = A(), L = [];
+    L.push("🌸 GIRLS FOLLOWING JESUS · EVALUATION");
+    if (a.name) L.push("Name: " + a.name);
+    L.push("", "SESSION RATINGS (out of 5)");
+    CAPITALS.forEach(function (c, i) { L.push("• " + c[0] + ": " + (a.ratings[i] || "-") + " " + "♥".repeat(a.ratings[i] || 0)); });
+    function q(label, v) { if (v && String(v).trim()) L.push("", label, String(v).trim()); }
+    q("Favourite session:", a.favourite); q("Why:", a.why); q("Standout moment:", a.moment);
+    q("Biggest lesson:", a.lesson); q("Capital to grow in:", a.grow); q("How it changed me:", a.changed);
+    q("CONTINUE:", a["continue"]); q("STOP:", a.stop); q("START:", a.start); q("On the SEAs:", a.seas);
+    q("Overall rating:", a.overall); q("Would recommend:", a.recommend); q("Other thoughts:", a.other);
+    return L.join("\n");
+  }
+  function payload() {
+    var a = A(), d = { id: a.rid, r: CAPITALS.map(function (c, i) { return a.ratings[i] || ""; }) };
+    ["name", "favourite", "why", "moment", "lesson", "grow", "changed", "continue", "stop", "start", "seas", "overall", "recommend", "other"]
+      .forEach(function (k) { if (a[k] && String(a[k]).trim()) d[k] = String(a[k]).trim(); });
+    return d;
+  }
+  function sheetLink() { return SHEET_URL + "?d=" + encodeURIComponent(JSON.stringify(payload())); }
+  function waLink(s) { return "https://wa.me/" + ADMIN_WHATSAPP.replace(/\D/g, "") + "?text=" + encodeURIComponent(s); }
+
+  var app = document.getElementById("app");
+  var total = SCREENS.length - 1;
+
+  function render(dir) {
+    var sc = SCREENS[state.step];
+    var navHtml = sc.done ? "" : '<p class="error" id="err"></p><div class="nav">' +
+      (state.step > 0 ? '<button type="button" class="btn ghost" id="back">← Back</button>' : "<span></span>") +
+      (sc.submit && DIRECT
+        ? '<button type="button" class="btn primary" id="next">Submit ✓</button></div>'
+        : sc.submit && SHEET_URL
+        ? '<a class="btn primary" id="next" href="' + esc(SHEET_URL) + '" target="_blank" rel="noopener">Submit ✓</a></div>'
+        : '<button type="button" class="btn primary" id="next">' + (sc.next || "Next") + ' →</button></div>');
+    app.innerHTML = '<section class="screen ' + (sc.done ? "center " : "") + (dir < 0 ? "enter-back" : "enter") + '">' + sc.render() + navHtml + '</section>';
+    var pct = Math.round(state.step / total * 100);
+    document.getElementById("bar").style.width = pct + "%";
+    document.querySelector(".progress").setAttribute("aria-valuenow", pct);
+    document.getElementById("count").textContent = sc.done ? "Complete" : (state.step + 1) + " of " + total;
+    wire();
+    if (sc.done && !SHEET_URL) burst();
+    if (dir) window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function wire() {
+    app.querySelectorAll("input[type=text], textarea").forEach(function (el) {
+      el.addEventListener("input", function () { A()[el.id] = el.value; save(); });
+    });
+    app.querySelectorAll(".hearts button").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var i = b.dataset.cap, n = +b.dataset.n;
+        A().ratings[i] = n; save();
+        b.parentNode.querySelectorAll("button").forEach(function (x) {
+          var on = +x.dataset.n <= n;
+          x.classList.toggle("on", on); x.setAttribute("aria-checked", +x.dataset.n === n);
+          x.classList.remove("pop"); if (on) { void x.offsetWidth; x.classList.add("pop"); }
+        });
+      });
+    });
+    app.querySelectorAll("[data-choice]").forEach(function (g) {
+      g.querySelectorAll(".choice").forEach(function (b) {
+        b.addEventListener("click", function () {
+          A()[g.dataset.choice] = b.dataset.val; save();
+          g.querySelectorAll(".choice").forEach(function (x) { x.setAttribute("aria-pressed", x === b); });
+        });
+      });
+    });
+    var next = document.getElementById("next"), back = document.getElementById("back");
+    if (next) next.addEventListener("click", function (ev) {
+      var sc = SCREENS[state.step], ck = sc.check, r = ck ? ck() : true;
+      if (r !== true) {
+        ev.preventDefault();
+        var err = document.getElementById("err"); err.textContent = r;
+        var s = app.querySelector(".screen"); s.classList.remove("shake"); void s.offsetWidth; s.classList.add("shake");
+        return;
+      }
+      if (sc.submit && DIRECT) {
+        if (!A().rid) A().rid = Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+        save();
+        next.disabled = true; next.textContent = "Sending…";
+        var ok = function () { state.submitted = true; state.step++; save(); render(1); openThanks(); };
+        var fail = function () {
+          next.disabled = false; next.textContent = "Submit ✓";
+          document.getElementById("err").textContent = "Your answers didn't send. Check your internet connection and tap Submit again.";
+        };
+        if (GAS) {
+          google.script.run.withSuccessHandler(ok).withFailureHandler(fail).submitResponse(payload());
+        } else {
+          // Apps Script doesn't allow reading the reply cross-site, so a completed request counts as sent.
+          fetch(SHEET_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(payload()) })
+            .then(ok, fail);
+        }
+        return;
+      }
+      if (sc.submit && SHEET_URL) {
+        if (!A().rid) A().rid = Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+        next.href = sheetLink();          // the link opens in a new tab and saves the row
+        state.submitted = true; state.step++; save();
+        setTimeout(function () { render(1); openThanks(); }, 150);
+        return;
+      }
+      state.step++; save(); render(1);
+    });
+    if (back) back.addEventListener("click", function () { state.step--; save(); render(-1); });
+    var copy = document.getElementById("copy");
+    if (copy) copy.addEventListener("click", function () {
+      var s = summary();
+      var ok = function () { copy.textContent = "Copied ✓ Paste it into WhatsApp"; };
+      var fallback = function () {
+        var r = document.createRange(); r.selectNodeContents(document.getElementById("sum"));
+        var sel = getSelection(); sel.removeAllRanges(); sel.addRange(r);
+        copy.textContent = "Selected. Press Copy on your device";
+      };
+      try { navigator.clipboard.writeText(s).then(ok, fallback); } catch (e) { fallback(); }
+    });
+    var submit = document.getElementById("submit");
+    if (submit) submit.addEventListener("click", function () {
+      state.submitted = true; save();
+      setTimeout(function () {
+        submit.textContent = "Submitted ✓ Send again";
+        document.getElementById("submitted-note").hidden = false;
+        burst();
+      }, 300);
+    });
+    var restart = document.getElementById("restart");
+    if (restart) restart.addEventListener("click", function () {
+      state = { step: 0, a: { ratings: {} } }; save(); render(-1);
+    });
+    var edit = document.getElementById("edit");
+    if (edit) edit.addEventListener("click", function () { state.step = 1; save(); render(-1); });
+  }
+
+  var thanks = document.getElementById("thanks"), lastFocus = null;
+  function openThanks() {
+    lastFocus = document.activeElement;
+    document.getElementById("tab-note").hidden = DIRECT;
+    thanks.hidden = false; burst();
+    document.getElementById("thanks-close").focus();
+  }
+  function closeThanks() { thanks.hidden = true; if (lastFocus && lastFocus.focus) lastFocus.focus(); }
+  document.getElementById("thanks-close").addEventListener("click", closeThanks);
+  thanks.addEventListener("click", function (e) { if (e.target === thanks) closeThanks(); });
+  addEventListener("keydown", function (e) { if (e.key === "Escape" && !thanks.hidden) closeThanks(); });
+
+  /* Drifting petals */
+  var cv = document.getElementById("petals"), ctx = cv.getContext("2d");
+  var reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var petals = [], W, H, cols;
+  function readCols() { var cs = getComputedStyle(document.documentElement); cols = [cs.getPropertyValue("--petal-a").trim(), cs.getPropertyValue("--petal-b").trim(), cs.getPropertyValue("--gold").trim()]; }
+  function size() { var d = devicePixelRatio || 1; W = innerWidth; H = innerHeight; cv.width = W * d; cv.height = H * d; ctx.setTransform(d, 0, 0, d, 0, 0); }
+  function petal(y, burstMode) {
+    return { x: burstMode ? W / 2 + (Math.random() - .5) * 80 : Math.random() * W, y: y,
+      r: 5 + Math.random() * 7, rot: Math.random() * 6.28, vr: (Math.random() - .5) * .04,
+      vx: burstMode ? (Math.random() - .5) * 9 : (Math.random() - .5) * .4, vy: burstMode ? -4 - Math.random() * 7 : .35 + Math.random() * .6,
+      sway: Math.random() * 6.28, c: cols[Math.floor(Math.random() * (burstMode ? 3 : 2))], burst: burstMode, a: burstMode ? 1 : .55 };
+  }
+  function drawPetal(p) {
+    ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot); ctx.globalAlpha = p.a; ctx.fillStyle = p.c;
+    ctx.beginPath(); ctx.moveTo(0, -p.r); ctx.quadraticCurveTo(p.r * .9, 0, 0, p.r); ctx.quadraticCurveTo(-p.r * .9, 0, 0, -p.r); ctx.fill(); ctx.restore();
+  }
+  function tick() {
+    ctx.clearRect(0, 0, W, H);
+    for (var i = petals.length - 1; i >= 0; i--) {
+      var p = petals[i];
+      p.sway += .02; p.x += p.vx + Math.sin(p.sway) * .3; p.y += p.vy; p.rot += p.vr;
+      if (p.burst) { p.vy += .15; p.vx *= .99; if (p.y > H + 20) { petals.splice(i, 1); continue; } }
+      else if (p.y > H + 20) { p.y = -20; p.x = Math.random() * W; }
+      drawPetal(p);
+    }
+    requestAnimationFrame(tick);
+  }
+  function burst() { if (reduce) return; for (var i = 0; i < 70; i++) petals.push(petal(H * .45, true)); }
+  readCols(); size();
+  addEventListener("resize", size);
+  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", function () { readCols(); petals.forEach(function (p) { p.c = cols[p.burst ? 2 : 0]; }); });
+  if (!reduce) { var n = Math.min(26, Math.round(W / 40)); for (var i = 0; i < n; i++) petals.push(petal(Math.random() * H, false)); tick(); }
+
+  function start() { if (state.step >= SCREENS.length) state.step = 0; render(0); }
+  if (hot && hot.ready) hot.ready(start); else start();
+})();
+</script>
