@@ -213,6 +213,16 @@ input[type="text"]:focus, textarea:focus { outline: none; border-color: var(--ro
   // "web" = hosted as a normal website: answers post to the sheet in the background.
   var MODE = "artifact";
   var DIRECT = !!GAS || MODE === "web";
+  // Google Form that receives website submissions (its responses are linked to the sheet).
+  var FORM_ID = "1FAIpQLSevYhgGTKXYVCYLzuZ-ecJQvKw4J2d5gPjzl7ypNxnSKsw1kA";
+  var FORM_ENTRIES = {
+    name: "1888923510",
+    ratings: ["1990344856", "344426839", "1527099265", "1698162912", "1446884746", "449782417", "324868952"],
+    favourite: "1781821817", why: "889862705", moment: "1286329018",
+    lesson: "96778883", grow: "877429465", changed: "147491697",
+    "continue": "888462976", stop: "847649399", start: "669619657",
+    seas: "1499623037", overall: "1595796898", recommend: "1584159833", other: "272696538"
+  };
   var SHEET_URL = "https://script.google.com/macros/s/AKfycbyNilP1PV423W5cNyDci1Sj1-iJ0vE11yc9QAoRVLferA_32GrPPH3rP2SG4SaaXyMs/exec";
 
   var CAPITALS = [
@@ -345,6 +355,22 @@ input[type="text"]:focus, textarea:focus { outline: none; border-color: var(--ro
       .forEach(function (k) { if (a[k] && String(a[k]).trim()) d[k] = String(a[k]).trim(); });
     return d;
   }
+  function formBody() {
+    var a = A(), b = new URLSearchParams();
+    FORM_ENTRIES.ratings.forEach(function (id, i) { if (a.ratings[i]) b.append("entry." + id, String(a.ratings[i])); });
+    Object.keys(FORM_ENTRIES).forEach(function (k) {
+      if (k === "ratings") return;
+      var v = a[k];
+      if (k === "favourite" && v) {
+        // The form's choices read "Core Capital – Who is at the centre of my life?"
+        var c = CAPITALS.filter(function (x) { return x[0] === v; })[0];
+        if (c) v = c[0] + " – " + c[1];
+      }
+      if (v && String(v).trim()) b.append("entry." + FORM_ENTRIES[k], String(v).trim());
+    });
+    b.append("pageHistory", "0,1,2,3,4,5");  // the form has six sections
+    return b;
+  }
   function sheetLink() { return SHEET_URL + "?d=" + encodeURIComponent(JSON.stringify(payload())); }
   function waLink(s) { return "https://wa.me/" + ADMIN_WHATSAPP.replace(/\D/g, "") + "?text=" + encodeURIComponent(s); }
 
@@ -414,9 +440,12 @@ input[type="text"]:focus, textarea:focus { outline: none; border-color: var(--ro
         if (GAS) {
           google.script.run.withSuccessHandler(ok).withFailureHandler(fail).submitResponse(payload());
         } else {
-          // Same request as opening the web app link with ?d=… (the reply can't be read cross-site,
-          // so a completed request counts as sent).
-          fetch(sheetLink(), { method: "GET", mode: "no-cors", cache: "no-store" }).then(ok, fail);
+          // Google doesn't let the page read the reply cross-site, so a completed request counts as sent.
+          if (FORM_ID) {
+            fetch("https://docs.google.com/forms/d/e/" + FORM_ID + "/formResponse", { method: "POST", mode: "no-cors", body: formBody() }).then(ok, fail);
+          } else {
+            fetch(sheetLink(), { method: "GET", mode: "no-cors", cache: "no-store" }).then(ok, fail);
+          }
         }
         return;
       }
