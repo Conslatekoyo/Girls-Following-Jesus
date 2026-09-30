@@ -4,6 +4,8 @@
  * Deployed as a web app (Execute as: Me, Who has access: Anyone), the /exec link
  * shows the animated evaluation page and saves each submission to the Responses tab.
  */
+// The responses spreadsheet (from its link: docs.google.com/spreadsheets/d/<ID>/edit).
+var SPREADSHEET_ID = '17gJO9-K6Z-kIfJDbS87Nsm0mPJmfV9-1WS4n12ZmlZY';
 var SHEET_NAME = 'Responses';
 
 var CAPITALS = ['Core Capital', 'Capital Compass', 'Capital Toolkit', 'Brand Capital',
@@ -33,7 +35,7 @@ function headers_() {
 }
 
 function sheet_() {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   var sh = ss.getSheetByName(SHEET_NAME) || ss.insertSheet(SHEET_NAME);
   if (sh.getLastRow() === 0) {
     var h = headers_();
@@ -48,6 +50,12 @@ function sheet_() {
 /** Run once from the editor to create the Responses tab with its headings. */
 function setup() {
   sheet_();
+}
+
+/** Run from the editor to check saving works: adds a TEST row to the Responses tab. */
+function testSave() {
+  save_({ id: 'test-' + Date.now(), r: [5, 5, 5, 5, 5, 5, 5], name: 'TEST (delete me)', overall: 'Excellent' });
+  Logger.log('Saved a TEST row to ' + SpreadsheetApp.openById(SPREADSHEET_ID).getUrl());
 }
 
 function doGet(e) {
