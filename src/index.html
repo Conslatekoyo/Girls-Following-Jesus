@@ -414,9 +414,9 @@ input[type="text"]:focus, textarea:focus { outline: none; border-color: var(--ro
         if (GAS) {
           google.script.run.withSuccessHandler(ok).withFailureHandler(fail).submitResponse(payload());
         } else {
-          // Apps Script doesn't allow reading the reply cross-site, so a completed request counts as sent.
-          fetch(SHEET_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(payload()) })
-            .then(ok, fail);
+          // Same request as opening the web app link with ?d=… (the reply can't be read cross-site,
+          // so a completed request counts as sent).
+          fetch(sheetLink(), { method: "GET", mode: "no-cors", cache: "no-store" }).then(ok, fail);
         }
         return;
       }
